@@ -105,5 +105,8 @@
   },
   "overrides": {
     "jose": "^4.15.4"
+  },
+  "engines": {
+    "node": "19"
   }
 }
