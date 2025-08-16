@@ -1,0 +1,602 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/user/auth/email": {
+      "post": {
+        "operationId": "UserController_sendAuthEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendAuthEmailRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendAuthEmailResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/user/auth/verify": {
+      "post": {
+        "operationId": "UserController_verifyAuthEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyAuthEmailRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyAuthEmailResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/user/info": {
+      "post": {
+        "operationId": "UserController_getUserInfo",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetUserInfoRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserInfoResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/session/create": {
+      "post": {
+        "operationId": "SessionController_createSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSessionResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
+    },
+    "/api/v1/session/join": {
+      "post": {
+        "operationId": "SessionController_joinSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinSessionRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinSessionResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
+    },
+    "/api/v1/session/info": {
+      "post": {
+        "operationId": "SessionController_getSessionInfo",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetSessionInfoRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSessionInfoResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
+    },
+    "/api/v1/session/bet": {
+      "post": {
+        "operationId": "SessionController_betSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BetSessionRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BetSessionResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Hera API",
+    "description": "APIs for interacting with Hera.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "hera",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "SendAuthEmailRequestBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "username"
+        ]
+      },
+      "SendAuthEmailResponseBody": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "VerifyAuthEmailRequestBody": {
+        "type": "object",
+        "properties": {
+          "verificationCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "verificationCode"
+        ]
+      },
+      "VerifyAuthEmailResponseBody": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "userToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "userToken"
+        ]
+      },
+      "GetUserInfoRequestBody": {
+        "type": "object",
+        "properties": {
+          "userToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userToken"
+        ]
+      },
+      "GetUserInfoResponseBody": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "eoaAddress": {
+            "type": "string"
+          },
+          "smartAccountAddress": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "chainId": {
+                  "type": "number"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "symbol": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "decimals": {
+                  "type": "number"
+                },
+                "rawAmount": {
+                  "type": "string"
+                },
+                "tokenAmount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "chainId",
+                "address",
+                "symbol",
+                "name",
+                "image",
+                "decimals",
+                "rawAmount",
+                "tokenAmount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "username",
+          "email",
+          "eoaAddress",
+          "smartAccountAddress",
+          "balance"
+        ]
+      },
+      "CreateSessionRequestBody": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string"
+          },
+          "userToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "network",
+          "userToken"
+        ]
+      },
+      "CreateSessionResponseBody": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "sessionCode": {
+            "type": "string"
+          },
+          "sessionToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "sessionCode",
+          "sessionToken"
+        ]
+      },
+      "JoinSessionRequestBody": {
+        "type": "object",
+        "properties": {
+          "userToken": {
+            "type": "string"
+          },
+          "sessionCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userToken",
+          "sessionCode"
+        ]
+      },
+      "JoinSessionResponseBody": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "sessionCode": {
+            "type": "string"
+          },
+          "sessionToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "sessionCode",
+          "sessionToken"
+        ]
+      },
+      "GetSessionInfoRequestBody": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "userToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "GetSessionTokenInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "chainId": {
+            "type": "number"
+          },
+          "address": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "number"
+          },
+          "rawAmount": {
+            "type": "string"
+          },
+          "tokenAmount": {
+            "type": "number"
+          },
+          "balanceRawAmount": {
+            "type": "string"
+          },
+          "balanceTokenAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "chainId",
+          "address",
+          "symbol",
+          "name",
+          "image",
+          "decimals",
+          "rawAmount",
+          "tokenAmount",
+          "balanceRawAmount",
+          "balanceTokenAmount"
+        ]
+      },
+      "GetSessionInfoPlayer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "tokenInfo": {
+            "$ref": "#/components/schemas/GetSessionTokenInfo"
+          },
+          "isOnline": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "tokenInfo",
+          "isOnline"
+        ]
+      },
+      "GetSessionInfoResponseBody": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "sessionCode": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string"
+          },
+          "player1": {
+            "$ref": "#/components/schemas/GetSessionInfoPlayer"
+          },
+          "player2": {
+            "$ref": "#/components/schemas/GetSessionInfoPlayer"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "sessionCode",
+          "network",
+          "player1",
+          "expiresAt"
+        ]
+      },
+      "BetSessionRequestBody": {
+        "type": "object",
+        "properties": {
+          "sessionToken": {
+            "type": "string"
+          },
+          "rawAmount": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionToken",
+          "rawAmount"
+        ]
+      },
+      "BetSessionResponseBody": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      }
+    }
+  }
+}
