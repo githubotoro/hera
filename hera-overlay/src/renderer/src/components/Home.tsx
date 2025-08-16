@@ -21,6 +21,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { ScrollArea } from './ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
 import WindowControls from './ui/window-controls';
+import { cn } from '@renderer/utils';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -158,7 +159,7 @@ const Home: React.FC = () => {
     ],
     queryFn: async () => {
       return api.api
-        .userControllerGetUserHistory({
+        .sessionControllerGetHistory({
           userToken: userToken ?? ''
         })
         .then((res) => res.data);
@@ -305,20 +306,33 @@ const Home: React.FC = () => {
             </div>
 
             <ScrollArea className="flex-1 h-64 w-full bg-base shrink-0 flex flex-col items-center p-2 gap-2 text-xs">
-              <div className="flex flex-row items-center justify-between">
-                <div className="text-green text-md">Won</div>
-                <div className="text-tertiary text-xs">10 USDC</div>
-              </div>
+              {userHistory?.data.map((item) => {
+                let label = 'Bet';
 
-              <div className="flex flex-row items-center justify-between">
-                <div className="text-red text-md">Lost</div>
-                <div className="text-tertiary text-xs">-20 USDC</div>
-              </div>
+                if (item.category === 'won') {
+                  label = 'Won';
+                } else if (item.category === 'lost') {
+                  label = 'Lost';
+                }
 
-              <div className="flex flex-row items-center justify-between">
-                <div className="text-primary text-md">Bet</div>
-                <div className="text-tertiary text-xs">20 USDC</div>
-              </div>
+                return (
+                  <div className="flex flex-row items-center justify-between">
+                    <div
+                      className={cn(
+                        'text-md',
+                        item.category === 'won'
+                          ? 'text-green'
+                          : item.category === 'lost'
+                            ? 'text-red'
+                            : 'text-primary'
+                      )}
+                    >
+                      {label}
+                    </div>
+                    <div className="text-tertiary text-xs">{item.tokenAmount} USDC</div>
+                  </div>
+                );
+              })}
             </ScrollArea>
           </div>
         </div>
@@ -346,11 +360,11 @@ const Home: React.FC = () => {
           </div> */}
 
           <div className="flex flex-row items-center gap-3 w-full justify-between">
-            <Button className="bg-tertiary text-white hover:bg-tertiary/80 w-1/2">
+            {/* <Button className="bg-tertiary text-white hover:bg-tertiary/80 w-1/2">
               Export Private Key
-            </Button>
+            </Button> */}
 
-            <Button onClick={handleSignOut} className="bg-red text-white hover:bg-red/80 w-1/2">
+            <Button onClick={handleSignOut} className="bg-red text-white hover:bg-red/80 w-full">
               Log Out
             </Button>
           </div>

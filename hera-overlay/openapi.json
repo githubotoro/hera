@@ -262,6 +262,37 @@
           "Session"
         ]
       }
+    },
+    "/api/v1/session/history": {
+      "post": {
+        "operationId": "SessionController_getHistory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetHistoryRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHistoryResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
     }
   },
   "info": {
@@ -652,6 +683,70 @@
         },
         "required": [
           "success"
+        ]
+      },
+      "GetHistoryRequestBody": {
+        "type": "object",
+        "properties": {
+          "userToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userToken"
+        ]
+      },
+      "GetHistoryResponseBodyDataElement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "timestampId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "rawAmount": {
+            "type": "string"
+          },
+          "tokenAmount": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "timestampId",
+          "sessionId",
+          "userId",
+          "rawAmount",
+          "tokenAmount",
+          "createdAt"
+        ]
+      },
+      "GetHistoryResponseBody": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetHistoryResponseBodyDataElement"
+            }
+          }
+        },
+        "required": [
+          "data"
         ]
       }
     }
