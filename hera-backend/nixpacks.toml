@@ -1,5 +1,5 @@
-[phases.setup]
-nixPkgs = ["nodejs_19"]
+[variables]
+NODE_VERSION = "19"
 
 [phases.install]
 cmds = ["npm ci"]
