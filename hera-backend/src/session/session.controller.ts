@@ -6,6 +6,7 @@ import {
   CreateSessionRequestBody,
   CreateSessionResponseBody,
   GetHistoryRequestBody,
+  GetHistoryResponseBody,
   GetSessionInfoRequestBody,
   GetSessionInfoResponseBody,
   JoinSessionRequestBody,
@@ -67,5 +68,15 @@ export class SessionController {
     @Body() body: SettleSessionReplayRequestBody,
   ): Promise<SettleSessionReplayResponseBody> {
     return this.sessionService.settleSessionReplay(body);
+  }
+
+  @Post('/history')
+  @ApiOkResponse({
+    type: GetHistoryResponseBody,
+  })
+  async getHistory(
+    @Body() body: GetHistoryRequestBody,
+  ): Promise<GetHistoryResponseBody> {
+    return this.sessionService.getHistory(body);
   }
 }

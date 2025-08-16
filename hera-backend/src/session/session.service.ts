@@ -17,6 +17,7 @@ import {
   JoinSessionResponseBody,
   SettleSessionReplayRequestBody,
   SettleSessionReplayResponseBody,
+  GetHistoryResponseBody,
 } from './session.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -427,7 +428,9 @@ export class SessionService {
     };
   }
 
-  async getHistory(body: GetHistoryRequestBody) {
+  async getHistory(
+    body: GetHistoryRequestBody,
+  ): Promise<GetHistoryResponseBody> {
     const userToken = this.jwtService.verify(body.userToken);
 
     const countQuery = this.drizzleService.read
@@ -461,7 +464,7 @@ export class SessionService {
 
     const refinedPage = {
       index: body.page?.index ?? 1,
-      size: body.page?.size ?? 10,
+      size: body.page?.size ?? 100,
     };
 
     const {
@@ -476,11 +479,23 @@ export class SessionService {
       page: refinedPage,
     });
 
+    const returnData = _data.map((log) => {
+      return {
+        ...log,
+        rawAmount: log.amount,
+        tokenAmount: TokenAmount(SafeBigInt(log.amount).toString(), 6),
+      };
+    });
+
     return {
-      data: _data,
-      count: _count,
-      page: _page,
+      data: returnData,
     };
+
+    // return {
+    //   data: _data,
+    //   count: _count,
+    //   page: _page,
+    // };
   }
 
   async settleSessionReplay(

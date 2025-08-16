@@ -171,7 +171,7 @@ export class GetHistoryRequestBody extends BaseRequestBody {
   userToken: string;
 }
 
-export class GetHistoryResponseBody {
+export class GetHistoryResponseBodyDataElement {
   @ApiProperty({
     type: String,
   })
@@ -181,6 +181,11 @@ export class GetHistoryResponseBody {
     type: String,
   })
   category: string;
+
+  @ApiProperty({
+    type: String,
+  })
+  timestampId: string;
 
   @ApiProperty({
     type: String,
@@ -195,17 +200,24 @@ export class GetHistoryResponseBody {
   @ApiProperty({
     type: String,
   })
-  amount: string;
+  rawAmount: string;
 
   @ApiProperty({
     type: String,
   })
-  userId2: string;
+  tokenAmount: number;
 
   @ApiProperty({
     type: String,
   })
   createdAt: string;
+}
+
+export class GetHistoryResponseBody {
+  @ApiProperty({
+    type: [GetHistoryResponseBodyDataElement],
+  })
+  data: GetHistoryResponseBodyDataElement[];
 }
 
 export class SettleSessionReplayRequestBody {

@@ -129,6 +129,25 @@ export interface SettleSessionReplayResponseBody {
   success: boolean;
 }
 
+export interface GetHistoryRequestBody {
+  userToken: string;
+}
+
+export interface GetHistoryResponseBodyDataElement {
+  id: string;
+  category: string;
+  timestampId: string;
+  sessionId: string;
+  userId: string;
+  rawAmount: string;
+  tokenAmount: string;
+  createdAt: string;
+}
+
+export interface GetHistoryResponseBody {
+  data: GetHistoryResponseBodyDataElement[];
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -561,6 +580,26 @@ export class Api<
     ) =>
       this.request<SettleSessionReplayResponseBody, any>({
         path: `/api/v1/session/settle`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Session
+     * @name SessionControllerGetHistory
+     * @request POST:/api/v1/session/history
+     */
+    sessionControllerGetHistory: (
+      data: GetHistoryRequestBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetHistoryResponseBody, any>({
+        path: `/api/v1/session/history`,
         method: "POST",
         body: data,
         type: ContentType.Json,
