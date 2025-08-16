@@ -231,6 +231,37 @@
           "Session"
         ]
       }
+    },
+    "/api/v1/session/settle": {
+      "post": {
+        "operationId": "SessionController_settleSessionReplay",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettleSessionReplayRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleSessionReplayResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
     }
   },
   "info": {
@@ -587,6 +618,32 @@
         ]
       },
       "BetSessionResponseBody": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "SettleSessionReplayRequestBody": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "userId"
+        ]
+      },
+      "SettleSessionReplayResponseBody": {
         "type": "object",
         "properties": {
           "success": {

@@ -217,5 +217,12 @@ export class SettleSessionReplayRequestBody {
   @ApiProperty({
     type: String,
   })
-  replayId: string;
+  userId: string;
+}
+
+export class SettleSessionReplayResponseBody {
+  @ApiProperty({
+    type: Boolean,
+  })
+  success: boolean;
 }

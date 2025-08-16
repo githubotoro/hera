@@ -10,6 +10,8 @@ import {
   GetSessionInfoResponseBody,
   JoinSessionRequestBody,
   JoinSessionResponseBody,
+  SettleSessionReplayRequestBody,
+  SettleSessionReplayResponseBody,
 } from './session.dto';
 import { ApiOkResponse, ApiResponse } from '@nestjs/swagger';
 
@@ -57,11 +59,13 @@ export class SessionController {
     return this.sessionService.betSession(body);
   }
 
-  // @Post('/history')
-  // @ApiResponse({
-  //   type: GetHistoryResponseBody,
-  // })
-  // async getHistory(@Body() body: GetHistoryRequestBody) {
-  //   return this.sessionService.getHistory(body);
-  // }
+  @Post('/settle')
+  @ApiOkResponse({
+    type: SettleSessionReplayResponseBody,
+  })
+  async settleSessionReplay(
+    @Body() body: SettleSessionReplayRequestBody,
+  ): Promise<SettleSessionReplayResponseBody> {
+    return this.sessionService.settleSessionReplay(body);
+  }
 }

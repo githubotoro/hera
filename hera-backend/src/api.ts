@@ -61,24 +61,27 @@ export interface CreateSessionRequestBody {
 
 export interface CreateSessionResponseBody {
   sessionId: string;
+  sessionCode: string;
   sessionToken: string;
 }
 
 export interface JoinSessionRequestBody {
   userToken: string;
-  sessionId: string;
+  sessionCode: string;
 }
 
 export interface JoinSessionResponseBody {
   sessionId: string;
+  sessionCode: string;
   sessionToken: string;
 }
 
 export interface GetSessionInfoRequestBody {
-  sessionToken: string;
+  sessionId: string;
+  userToken?: string;
 }
 
-export interface TokenInfo {
+export interface GetSessionTokenInfo {
   id: string;
   chainId: number;
   address: string;
@@ -88,19 +91,24 @@ export interface TokenInfo {
   decimals: number;
   rawAmount: string;
   tokenAmount: number;
+  balanceRawAmount: string;
+  balanceTokenAmount: number;
 }
 
 export interface GetSessionInfoPlayer {
   id: string;
   username: string;
-  tokenInfo: TokenInfo;
+  tokenInfo: GetSessionTokenInfo;
+  isOnline: boolean;
 }
 
 export interface GetSessionInfoResponseBody {
   sessionId: string;
+  sessionCode: string;
   network: string;
   player1: GetSessionInfoPlayer;
   player2?: GetSessionInfoPlayer;
+  expiresAt: string;
 }
 
 export interface BetSessionRequestBody {
@@ -109,6 +117,15 @@ export interface BetSessionRequestBody {
 }
 
 export interface BetSessionResponseBody {
+  success: boolean;
+}
+
+export interface SettleSessionReplayRequestBody {
+  sessionId: string;
+  userId: string;
+}
+
+export interface SettleSessionReplayResponseBody {
   success: boolean;
 }
 
@@ -165,7 +182,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "https://api.hera.org";
+  public baseUrl: string = "";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -369,7 +386,6 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Hera API
  * @version 1.0
- * @baseUrl https://api.hera.org
  * @contact
  *
  * APIs for interacting with Hera.
@@ -403,11 +419,12 @@ export class Api<
       data: SendAuthEmailRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, SendAuthEmailResponseBody>({
+      this.request<SendAuthEmailResponseBody, any>({
         path: `/api/v1/user/auth/email`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -422,11 +439,12 @@ export class Api<
       data: VerifyAuthEmailRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, VerifyAuthEmailResponseBody>({
+      this.request<VerifyAuthEmailResponseBody, any>({
         path: `/api/v1/user/auth/verify`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -441,11 +459,12 @@ export class Api<
       data: GetUserInfoRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, GetUserInfoResponseBody>({
+      this.request<GetUserInfoResponseBody, any>({
         path: `/api/v1/user/info`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -460,11 +479,12 @@ export class Api<
       data: CreateSessionRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, CreateSessionResponseBody>({
+      this.request<CreateSessionResponseBody, any>({
         path: `/api/v1/session/create`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -479,11 +499,12 @@ export class Api<
       data: JoinSessionRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, JoinSessionResponseBody>({
+      this.request<JoinSessionResponseBody, any>({
         path: `/api/v1/session/join`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -498,11 +519,12 @@ export class Api<
       data: GetSessionInfoRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, GetSessionInfoResponseBody>({
+      this.request<GetSessionInfoResponseBody, any>({
         path: `/api/v1/session/info`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -517,11 +539,32 @@ export class Api<
       data: BetSessionRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<any, BetSessionResponseBody>({
+      this.request<BetSessionResponseBody, any>({
         path: `/api/v1/session/bet`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Session
+     * @name SessionControllerSettleSessionReplay
+     * @request POST:/api/v1/session/settle
+     */
+    sessionControllerSettleSessionReplay: (
+      data: SettleSessionReplayRequestBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<SettleSessionReplayResponseBody, any>({
+        path: `/api/v1/session/settle`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

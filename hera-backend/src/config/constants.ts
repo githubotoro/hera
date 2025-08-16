@@ -12,9 +12,9 @@ export const USDC_MAP: Record<string, BaseTokenInfo> = {
       'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
   },
   '84532': {
-    id: '84532-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    id: '84532-0x1ab92d16f5f84e6974411e7d2497209521eb1658',
     chainId: 84532,
-    address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    address: '0x1ab92d16f5f84e6974411e7d2497209521eb1658',
     decimals: 6,
     symbol: 'USDC',
     name: 'USDC',

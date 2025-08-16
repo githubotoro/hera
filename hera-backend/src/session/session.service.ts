@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
-import { sessionLogs, sessions } from '../drizzle/schema';
+import { sessionLogs, sessions, users } from '../drizzle/schema';
 import {
   CreateSessionRequestBody,
   BetSessionRequestBody,
@@ -16,6 +16,7 @@ import {
   CreateSessionResponseBody,
   JoinSessionResponseBody,
   SettleSessionReplayRequestBody,
+  SettleSessionReplayResponseBody,
 } from './session.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -482,7 +483,11 @@ export class SessionService {
     };
   }
 
-  async settleSessionReplay(body: SettleSessionReplayRequestBody) {
+  async settleSessionReplay(
+    body: SettleSessionReplayRequestBody,
+  ): Promise<SettleSessionReplayResponseBody> {
+    // const userToken = this.jwtService.verify(body.userToken);
+
     const session = await this.drizzleService.read.query.sessions.findFirst({
       where: eq(sessions.id, body.sessionId),
       with: {
@@ -495,11 +500,53 @@ export class SessionService {
       throw new BadRequestException('Session does not exist or expired');
     }
 
+    const userInfo = await this.drizzleService.read.query.users.findFirst({
+      where: eq(users.id, body.userId),
+    });
+
+    if (!userInfo) {
+      throw new BadRequestException('User does not exist');
+    }
+
+    const userReplays = await Fightcade.GetUserReplays(userInfo.username);
+
+    if (userReplays.length === 0) {
+      throw new BadRequestException('No replays found for user');
+    }
+
+    const replay = userReplays[0];
+    const replayId = replay.quarkid;
+
+    const userReplayEndDate = new Date(replay.date);
+    const userReplayStartDate = new Date(
+      Number(replay.date) - replay.duration * 1000,
+    );
+
+    // this.logger.debug('userReplayStartDate', userReplayStartDate);
+    // this.logger.debug('userReplayEndDate', userReplayEndDate);
+    // this.logger.debug('session.createdAt', session.createdAt);
+    // this.logger.debug('session.expiresAt', session.expiresAt);
+
+    if (
+      userReplayStartDate >= new Date(session.createdAt) &&
+      userReplayEndDate <= new Date(session.expiresAt)
+    ) {
+      // valid replay
+    } else {
+      throw new BadRequestException(
+        'Only replays played in the session can be settled',
+      );
+    }
+
     const allSessionLogs =
       await this.drizzleService.read.query.sessionLogs.findMany({
         where: and(eq(sessionLogs.sessionId, body.sessionId)),
         orderBy: desc(sessionLogs.createdAt),
       });
+
+    if (allSessionLogs.some((log) => log.replayId === replayId)) {
+      throw new BadRequestException('Replay has already been settled');
+    }
 
     if (allSessionLogs.length === 0) {
       throw new BadRequestException('No bets have been made in this session');
@@ -512,8 +559,6 @@ export class SessionService {
       throw new BadRequestException('Session has already been settled');
     }
 
-    const replay = await Fightcade.GetReplay(body.replayId);
-
     if (replay.players.length !== 2) {
       throw new BadRequestException('Replay is invalid');
     }
@@ -524,16 +569,31 @@ export class SessionService {
       );
     }
 
+    // this.logger.debug('replay.players[0].name', replay.players[0].name);
+    // this.logger.debug('replay.players[1].name', replay.players[1].name);
+    // this.logger.debug(
+    //   'session.user_player1Id.username',
+    //   session.user_player1Id.username,
+    // );
+    // this.logger.debug(
+    //   'session.user_player2Id.username',
+    //   session.user_player2Id.username,
+    // );
+
     if (
       replay.players[0].name !== session.user_player1Id.username &&
-      replay.players[0].name !== session.user_player1Id.username
+      replay.players[1].name !== session.user_player1Id.username
     ) {
-      throw new BadRequestException('You are not a player of this session');
+      throw new BadRequestException(
+        'Session player does not match replay player 1',
+      );
     } else if (
       replay.players[0].name !== session.user_player2Id.username &&
-      replay.players[0].name !== session.user_player2Id.username
+      replay.players[1].name !== session.user_player2Id.username
     ) {
-      throw new BadRequestException('You are not a player of this session');
+      throw new BadRequestException(
+        'Session player does not match replay player 2',
+      );
     }
 
     let player1 = replay.players[0].name;
