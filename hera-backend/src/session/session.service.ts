@@ -523,14 +523,14 @@ export class SessionService {
       throw new BadRequestException('User does not exist');
     }
 
-    // this.logger.debug(
-    //   'session.createdAt',
-    //   new Date(session.createdAt).getTime(),
-    // );
+    this.logger.debug(
+      'session.createdAt',
+      new Date(session.createdAt).getTime(),
+    );
 
-    const userReplays = await Fightcade.GetUserReplays(userInfo.username, {
-      since: new Date(session.createdAt).getTime(),
-    });
+    const userReplays = await Fightcade.GetUserReplays(userInfo.username, {});
+
+    this.logger.debug('userReplays', userReplays);
 
     if (userReplays.length === 0) {
       throw new BadRequestException('No replays found for user');
