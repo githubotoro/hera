@@ -45,7 +45,7 @@ const Session: React.FC = () => {
         })
         .then((res) => res.data);
     },
-    refetchInterval: 10 * 1000, // 10 seconds
+    refetchInterval: 5 * 1000, // 10 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     placeholderData: keepPreviousData
@@ -67,7 +67,7 @@ const Session: React.FC = () => {
         })
         .then((res) => res.data);
     },
-    refetchInterval: 10 * 1000, // 10 seconds
+    refetchInterval: 5 * 1000, // 10 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     placeholderData: keepPreviousData

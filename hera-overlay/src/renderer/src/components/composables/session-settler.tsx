@@ -29,7 +29,7 @@ export const SessionSettler = () => {
         })
         .then((res) => res.data);
     },
-    refetchInterval: 10 * 1000, // 10 seconds
+    refetchInterval: 5 * 1000, // 5 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     placeholderData: keepPreviousData
@@ -49,11 +49,13 @@ export const SessionSettler = () => {
         userId: userInfo?.userId ?? ''
       });
     },
-    refetchInterval: 10 * 1000, // 10 seconds
+    refetchInterval: 5 * 1000, // 5 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     placeholderData: keepPreviousData
   });
+
+  console.log('settleSession', settleSession);
 
   return null;
 };

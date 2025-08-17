@@ -123,7 +123,7 @@ export const EventLogger = () => {
     } else if (category.includes('win') || category.includes('won')) {
       return `You won ${amount} USDC`;
     } else if (category.includes('lost') || category.includes('lose')) {
-      return `You lost ${amount} USDC`;
+      return `You lost ${-1 * amount} USDC`;
     } else if (category.includes('list') || category.includes('listed')) {
       return `You listed ${amount} USDC`;
     } else {
