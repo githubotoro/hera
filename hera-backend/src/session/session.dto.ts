@@ -238,3 +238,15 @@ export class SettleSessionReplayResponseBody {
   })
   success: boolean;
 }
+
+export class SettleSessionReplayByQuarkIdRequestBody {
+  @ApiProperty({
+    type: String,
+  })
+  replayId: string;
+
+  @ApiProperty({
+    type: String,
+  })
+  sessionId: string;
+}

@@ -18,6 +18,7 @@ import {
   SettleSessionReplayRequestBody,
   SettleSessionReplayResponseBody,
   GetHistoryResponseBody,
+  SettleSessionReplayByQuarkIdRequestBody,
 } from './session.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -528,7 +529,23 @@ export class SessionService {
       new Date(session.createdAt).getTime(),
     );
 
-    const userReplays = await Fightcade.GetUserReplays(userInfo.username, {});
+    let objects: any[] = [
+      {
+        offset: 0,
+      },
+      {
+        limit: 100,
+      },
+    ];
+
+    let currentTimestamp = new Date().getTime();
+
+    let currObject = objects[currentTimestamp % 2];
+
+    const userReplays = await Fightcade.GetUserReplays(
+      userInfo.username,
+      currObject,
+    );
 
     this.logger.debug('userReplays', userReplays);
 
@@ -601,6 +618,218 @@ export class SessionService {
     //   'session.user_player2Id.username',
     //   session.user_player2Id.username,
     // );
+
+    if (
+      replay.players[0].name !== session.user_player1Id.username &&
+      replay.players[1].name !== session.user_player1Id.username
+    ) {
+      throw new BadRequestException(
+        'Session player does not match replay player 1',
+      );
+    } else if (
+      replay.players[0].name !== session.user_player2Id.username &&
+      replay.players[1].name !== session.user_player2Id.username
+    ) {
+      throw new BadRequestException(
+        'Session player does not match replay player 2',
+      );
+    }
+
+    let player1 = replay.players[0].name;
+    let player2 = replay.players[1].name;
+
+    let winnerPlayerUsername = '';
+    let loserPlayerUsername = '';
+
+    if (replay.players[0].score === replay.players[1].score) {
+      throw new BadRequestException('Replay is a tie');
+    }
+
+    if (replay.players[0].score > replay.players[1].score) {
+      winnerPlayerUsername = player1;
+      loserPlayerUsername = player2;
+    } else {
+      winnerPlayerUsername = player2;
+      loserPlayerUsername = player1;
+    }
+
+    let dbPlayer1Username = session.user_player1Id.username;
+    let dbPlayer2Username = session.user_player2Id.username;
+
+    let dbPlayer1BetAmount = allSessionLogs.reduce((acc, log) => {
+      if (log.userId === session.user_player1Id.id) {
+        return acc + SafeBigInt(log.amount);
+      }
+      return acc;
+    }, SafeBigInt(0));
+
+    let dbPlayer2BetAmount = allSessionLogs.reduce((acc, log) => {
+      if (log.userId === session.user_player2Id.id) {
+        return acc + SafeBigInt(log.amount);
+      }
+      return acc;
+    }, SafeBigInt(0));
+
+    if (winnerPlayerUsername === dbPlayer1Username) {
+      if (dbPlayer2BetAmount === SafeBigInt(0)) {
+        throw new BadRequestException('Player 2 did not bet');
+      }
+    } else {
+      if (dbPlayer1BetAmount === SafeBigInt(0)) {
+        throw new BadRequestException('Player 1 did not bet');
+      }
+    }
+
+    let winnerUserId =
+      winnerPlayerUsername === dbPlayer1Username
+        ? session.user_player1Id.id
+        : session.user_player2Id.id;
+    let loserUserId =
+      winnerPlayerUsername === dbPlayer1Username
+        ? session.user_player2Id.id
+        : session.user_player1Id.id;
+
+    let winnerSmartAccountAddress =
+      winnerPlayerUsername === dbPlayer1Username
+        ? session.user_player1Id.smartAccountAddress
+        : session.user_player2Id.smartAccountAddress;
+
+    let transferRawAmount =
+      winnerPlayerUsername === dbPlayer1Username
+        ? dbPlayer2BetAmount
+        : dbPlayer1BetAmount;
+
+    const cdp = this.cdpService.cdp;
+
+    const eoaAccount = await cdp.evm.getOrCreateAccount({
+      name: loserUserId,
+    });
+
+    const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+      name: loserUserId,
+      owner: eoaAccount,
+    });
+
+    const usdcInterface = new ethers.Interface(ERC20_ABI);
+
+    const usdcTransferCalldata = usdcInterface.encodeFunctionData('transfer', [
+      winnerSmartAccountAddress,
+      transferRawAmount,
+    ]);
+
+    let timestampId = Date.now();
+
+    const newSettledSessionLogs: (typeof sessionLogs.$inferInsert)[] = [
+      {
+        id: `won_${timestampId}`,
+        timestampId: timestampId.toString(),
+        sessionId: session.id,
+        userId: winnerUserId,
+        category: 'won',
+        amount: transferRawAmount.toString(),
+        createdAt: new Date().toISOString(),
+        isSettled: true,
+        replayId: replayId,
+      },
+      {
+        id: `lost_${timestampId}`,
+        timestampId: timestampId.toString(),
+        sessionId: session.id,
+        userId: loserUserId,
+        category: 'lost',
+        amount: (-1n * transferRawAmount).toString(),
+        createdAt: new Date().toISOString(),
+        isSettled: true,
+        replayId: replayId,
+      },
+    ];
+
+    await this.drizzleService.write
+      .insert(sessionLogs)
+      .values(newSettledSessionLogs);
+
+    const userOperation = await cdp.evm.sendUserOperation({
+      smartAccount: smartAccount,
+      network: session.network === '8453' ? 'base' : 'base-sepolia',
+      // @ts-ignore
+      calls: [
+        {
+          to: USDC_MAP[session.network].address as `0x${string}`,
+          value: BigInt(0),
+          data: usdcTransferCalldata as `0x${string}`,
+        },
+      ],
+    });
+
+    return {
+      success: true,
+    };
+  }
+
+  async settleSessionReplayByQuarkId(
+    body: SettleSessionReplayByQuarkIdRequestBody,
+  ): Promise<SettleSessionReplayResponseBody> {
+    const session = await this.drizzleService.read.query.sessions.findFirst({
+      where: eq(sessions.id, body.sessionId),
+      with: {
+        user_player1Id: true,
+        user_player2Id: true,
+      },
+    });
+
+    if (!session) {
+      throw new BadRequestException('Session does not exist or expired');
+    }
+
+    const replay = await Fightcade.GetReplay(body.replayId);
+
+    if (!replay) {
+      throw new BadRequestException('Replay does not exist');
+    }
+
+    const replayId = replay.quarkid;
+
+    const allSessionLogs =
+      await this.drizzleService.read.query.sessionLogs.findMany({
+        where: and(eq(sessionLogs.sessionId, body.sessionId)),
+        orderBy: desc(sessionLogs.createdAt),
+      });
+
+    if (allSessionLogs.some((log) => log.replayId === replayId)) {
+      throw new BadRequestException('Replay has already been settled');
+    }
+
+    if (allSessionLogs.length === 0) {
+      throw new BadRequestException('No bets have been made in this session');
+    }
+
+    if (
+      allSessionLogs[0].category === 'won' ||
+      allSessionLogs[0].category === 'lost'
+    ) {
+      throw new BadRequestException('Session has already been settled');
+    }
+
+    if (replay.players.length !== 2) {
+      throw new BadRequestException('Replay is invalid');
+    }
+
+    if (!session.user_player2Id) {
+      throw new BadRequestException(
+        'Session was not joined by a second player',
+      );
+    }
+
+    this.logger.debug('replay.players[0].name', replay.players[0].name);
+    this.logger.debug('replay.players[1].name', replay.players[1].name);
+    this.logger.debug(
+      'session.user_player1Id.username',
+      session.user_player1Id.username,
+    );
+    this.logger.debug(
+      'session.user_player2Id.username',
+      session.user_player2Id.username,
+    );
 
     if (
       replay.players[0].name !== session.user_player1Id.username &&

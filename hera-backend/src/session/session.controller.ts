@@ -11,6 +11,7 @@ import {
   GetSessionInfoResponseBody,
   JoinSessionRequestBody,
   JoinSessionResponseBody,
+  SettleSessionReplayByQuarkIdRequestBody,
   SettleSessionReplayRequestBody,
   SettleSessionReplayResponseBody,
 } from './session.dto';
@@ -68,6 +69,16 @@ export class SessionController {
     @Body() body: SettleSessionReplayRequestBody,
   ): Promise<SettleSessionReplayResponseBody> {
     return this.sessionService.settleSessionReplay(body);
+  }
+
+  @Post('/quark')
+  @ApiOkResponse({
+    type: SettleSessionReplayResponseBody,
+  })
+  async settleSessionReplayByQuarkId(
+    @Body() body: SettleSessionReplayByQuarkIdRequestBody,
+  ): Promise<SettleSessionReplayResponseBody> {
+    return this.sessionService.settleSessionReplayByQuarkId(body);
   }
 
   @Post('/history')

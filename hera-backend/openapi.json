@@ -263,6 +263,37 @@
         ]
       }
     },
+    "/api/v1/session/quark": {
+      "post": {
+        "operationId": "SessionController_settleSessionReplayByQuarkId",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettleSessionReplayByQuarkIdRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleSessionReplayResponseBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Session"
+        ]
+      }
+    },
     "/api/v1/session/history": {
       "post": {
         "operationId": "SessionController_getHistory",
@@ -683,6 +714,21 @@
         },
         "required": [
           "success"
+        ]
+      },
+      "SettleSessionReplayByQuarkIdRequestBody": {
+        "type": "object",
+        "properties": {
+          "replayId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "replayId",
+          "sessionId"
         ]
       },
       "GetHistoryRequestBody": {
