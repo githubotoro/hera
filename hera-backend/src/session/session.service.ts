@@ -537,10 +537,10 @@ export class SessionService {
       Number(replay.date) + replay.duration * 1000,
     );
 
-    this.logger.debug('userReplayStartDate', userReplayStartDate);
-    this.logger.debug('userReplayEndDate', userReplayEndDate);
-    this.logger.debug('session.createdAt', session.createdAt);
-    this.logger.debug('session.expiresAt', session.expiresAt);
+    // this.logger.debug('userReplayStartDate', userReplayStartDate);
+    // this.logger.debug('userReplayEndDate', userReplayEndDate);
+    // this.logger.debug('session.createdAt', session.createdAt);
+    // this.logger.debug('session.expiresAt', session.expiresAt);
 
     if (
       userReplayStartDate >= new Date(session.createdAt) &&
@@ -705,6 +705,7 @@ export class SessionService {
         amount: transferRawAmount.toString(),
         createdAt: new Date().toISOString(),
         isSettled: true,
+        replayId: replayId,
       },
       {
         id: `lost_${timestampId}`,
@@ -715,6 +716,7 @@ export class SessionService {
         amount: (-1n * transferRawAmount).toString(),
         createdAt: new Date().toISOString(),
         isSettled: true,
+        replayId: replayId,
       },
     ];
 
