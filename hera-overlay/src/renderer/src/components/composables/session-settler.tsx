@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@renderer/api';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Fightcade } from 'fightcade-api';
+import { useEffect, useRef, useState } from 'react';
 
 export const SessionSettler = () => {
   const [userToken, setUserToken] = usePersistentAtom<string | undefined>('userToken', undefined);
@@ -14,6 +15,8 @@ export const SessionSettler = () => {
       }
     | undefined
   >('sessionData', undefined);
+
+  const [timestamp, setTimestamp] = useState<number>(Date.now());
 
   const { data: userInfo, isLoading: isLoadingUserInfo } = useQuery({
     queryKey: [
@@ -40,7 +43,8 @@ export const SessionSettler = () => {
       'session-settler',
       {
         sessionId: sessionData?.sessionId ?? '',
-        userToken: userToken ?? ''
+        userToken: userToken ?? '',
+        timestamp
       }
     ],
     queryFn: async () => {
@@ -51,11 +55,21 @@ export const SessionSettler = () => {
     },
     refetchInterval: 5 * 1000, // 5 seconds
     refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    placeholderData: keepPreviousData
+    refetchOnMount: true
+    // placeholderData: keepPreviousData
   });
 
   console.log('settleSession', settleSession);
+
+  useEffect(() => {
+    // Set up interval to update timestamp every 5 seconds
+    const interval = setInterval(() => {
+      setTimestamp(Date.now());
+    }, 5 * 1000); // 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   return null;
 };
