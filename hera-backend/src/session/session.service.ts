@@ -523,7 +523,9 @@ export class SessionService {
       throw new BadRequestException('User does not exist');
     }
 
-    const userReplays = await Fightcade.GetUserReplays(userInfo.username);
+    const userReplays = await Fightcade.GetUserReplays(userInfo.username, {
+      since: new Date(session.createdAt).getTime(),
+    });
 
     if (userReplays.length === 0) {
       throw new BadRequestException('No replays found for user');
