@@ -523,6 +523,11 @@ export class SessionService {
       throw new BadRequestException('User does not exist');
     }
 
+    // this.logger.debug(
+    //   'session.createdAt',
+    //   new Date(session.createdAt).getTime(),
+    // );
+
     const userReplays = await Fightcade.GetUserReplays(userInfo.username, {
       since: new Date(session.createdAt).getTime(),
     });
