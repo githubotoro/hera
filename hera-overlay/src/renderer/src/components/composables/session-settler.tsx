@@ -49,7 +49,7 @@ export const SessionSettler = () => {
         userId: userInfo?.userId ?? ''
       });
     },
-    refetchInterval: 10 * 1000, // 10 second
+    refetchInterval: 5 * 1000, // 5 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     placeholderData: keepPreviousData

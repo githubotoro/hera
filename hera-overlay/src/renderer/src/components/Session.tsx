@@ -175,7 +175,7 @@ const Session: React.FC = () => {
         <Button onClick={() => setIsAddingBet(!isAddingBet)}>{`Add New Bet [LB + RB]`}</Button>
       </div>
 
-      {/* <SessionSettler /> */}
+      <SessionSettler />
     </div>
   );
 };
