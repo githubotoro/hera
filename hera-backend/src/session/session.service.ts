@@ -547,31 +547,50 @@ export class SessionService {
     //   currObject,
     // );
 
-    let tryUserReplays1 = await Fightcade.GetUserReplays(userInfo.username, {
-      limit: 100,
-    });
+    // let tryUserReplays1 = await Fightcade.GetUserReplays(userInfo.username, {
+    //   limit: 100,
+    // });
+
+    let tryUserReplays1 = await fetch(`https://www.fightcade.com/api/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        req: 'searchquarks',
+        username: userInfo.username,
+        offset: 0,
+      }),
+    }).then((res) => res.json().then((data) => data.results.results));
 
     this.logger.debug('tryUserReplays1', tryUserReplays1);
 
-    let tryUserReplays2 = await Fightcade.GetUserReplays(userInfo.username, {
-      offset: 0,
-    });
+    // let tryUserReplays2 = await Fightcade.GetUserReplays(userInfo.username, {
+    //   offset: 0,
+    // });
 
-    let tryUserReplays3 = await Fightcade.GetUserReplays(userInfo.username, {
-      limit: 100,
-      offset: 0,
-    });
+    let tryUserReplays2 = await fetch(`https://www.fightcade.com/api/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        req: 'searchquarks',
+        username: userInfo.username,
+        limit: 50,
+      }),
+    }).then((res) => res.json().then((data) => data.results.results));
 
-    let tryUserReplays4 = await Fightcade.GetUserReplays(userInfo.username, {
-      limit: 50,
-    });
+    // let tryUserReplays3 = await Fightcade.GetUserReplays(userInfo.username, {
+    //   limit: 100,
+    //   offset: 0,
+    // });
 
-    if (
-      tryUserReplays1.length === 0 ||
-      tryUserReplays2.length === 0 ||
-      tryUserReplays3.length === 0 ||
-      tryUserReplays4.length === 0
-    ) {
+    // let tryUserReplays4 = await Fightcade.GetUserReplays(userInfo.username, {
+    //   limit: 50,
+    // });
+
+    if (tryUserReplays1.length === 0 || tryUserReplays2.length === 0) {
       throw new BadRequestException('No replays found for user');
     }
 
@@ -581,18 +600,12 @@ export class SessionService {
 
     const maxDate1 = getMaxDate(tryUserReplays1);
     const maxDate2 = getMaxDate(tryUserReplays2);
-    const maxDate3 = getMaxDate(tryUserReplays3);
-    const maxDate4 = getMaxDate(tryUserReplays4);
 
     let userReplays;
-    if (maxDate1 >= maxDate2 && maxDate1 >= maxDate3 && maxDate1 >= maxDate4) {
+    if (maxDate1 >= maxDate2) {
       userReplays = tryUserReplays1;
-    } else if (maxDate2 >= maxDate3 && maxDate2 >= maxDate4) {
-      userReplays = tryUserReplays2;
-    } else if (maxDate3 >= maxDate4) {
-      userReplays = tryUserReplays3;
     } else {
-      userReplays = tryUserReplays4;
+      userReplays = tryUserReplays2;
     }
 
     this.logger.debug('userReplays', userReplays);
@@ -636,9 +649,9 @@ export class SessionService {
         orderBy: desc(sessionLogs.createdAt),
       });
 
-    if (allSessionLogs.some((log) => log.replayId === replayId)) {
-      throw new BadRequestException('Replay has already been settled');
-    }
+    // if (allSessionLogs.some((log) => log.replayId === replayId)) {
+    //   throw new BadRequestException('Replay has already been settled');
+    // }
 
     if (allSessionLogs.length === 0) {
       throw new BadRequestException('No bets have been made in this session');
