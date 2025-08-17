@@ -532,26 +532,26 @@ export class SessionService {
     const replay = userReplays[0];
     const replayId = replay.quarkid;
 
-    const userReplayStartDate = new Date(replay.date);
-    const userReplayEndDate = new Date(
-      Number(replay.date) + replay.duration * 1000,
-    );
+    // const userReplayStartDate = new Date(replay.date);
+    // const userReplayEndDate = new Date(
+    //   Number(replay.date) + replay.duration * 1000,
+    // );
 
     // this.logger.debug('userReplayStartDate', userReplayStartDate);
     // this.logger.debug('userReplayEndDate', userReplayEndDate);
     // this.logger.debug('session.createdAt', session.createdAt);
     // this.logger.debug('session.expiresAt', session.expiresAt);
 
-    if (
-      userReplayStartDate >= new Date(session.createdAt) &&
-      userReplayEndDate <= new Date(session.expiresAt)
-    ) {
-      // valid replay
-    } else {
-      throw new BadRequestException(
-        'Only replays played in the session can be settled',
-      );
-    }
+    // if (
+    //   userReplayStartDate >= new Date(session.createdAt) &&
+    //   userReplayEndDate <= new Date(session.expiresAt)
+    // ) {
+    //   // valid replay
+    // } else {
+    //   throw new BadRequestException(
+    //     'Only replays played in the session can be settled',
+    //   );
+    // }
 
     const allSessionLogs =
       await this.drizzleService.read.query.sessionLogs.findMany({
