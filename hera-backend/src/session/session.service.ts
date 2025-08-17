@@ -38,6 +38,23 @@ import { Fightcade } from 'fightcade-api';
 import { CdpService } from '../cdp/cdp.service';
 import { ethers } from 'ethers';
 
+// Configure fetch to avoid caching issues
+const fetchWithNoCache = async (url: string, options: RequestInit) => {
+  const timestamp = Date.now();
+  const urlWithTimestamp = `${url}${url.includes('?') ? '&' : '?'}_t=${timestamp}`;
+
+  return fetch(urlWithTimestamp, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      'User-Agent': 'Hera-Backend/1.0',
+    },
+  });
+};
+
 @Injectable()
 export class SessionService {
   private readonly logger = new Logger(SessionService.name);
@@ -551,35 +568,46 @@ export class SessionService {
     //   limit: 100,
     // });
 
-    let tryUserReplays1 = await fetch(`https://www.fightcade.com/api/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    let tryUserReplays1 = await fetchWithNoCache(
+      `https://www.fightcade.com/api/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          req: 'searchquarks',
+          username: userInfo.username,
+          offset: 0,
+        }),
       },
-      body: JSON.stringify({
-        req: 'searchquarks',
-        username: userInfo.username,
-        offset: 0,
-      }),
-    }).then((res) => res.json().then((data) => data.results.results));
+    ).then((res) => res.json().then((data) => data.results.results));
 
-    this.logger.debug('tryUserReplays1', tryUserReplays1);
+    this.logger.debug('tryUserReplays1[0]', tryUserReplays1[0].quarkid);
+    this.logger.debug('tryUserReplays1[0].date', tryUserReplays1[0].date);
+    this.logger.debug('Current timestamp', Date.now());
 
     // let tryUserReplays2 = await Fightcade.GetUserReplays(userInfo.username, {
     //   offset: 0,
     // });
 
-    let tryUserReplays2 = await fetch(`https://www.fightcade.com/api/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    let tryUserReplays2 = await fetchWithNoCache(
+      `https://www.fightcade.com/api/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          req: 'searchquarks',
+          username: userInfo.username,
+          limit: 50,
+        }),
       },
-      body: JSON.stringify({
-        req: 'searchquarks',
-        username: userInfo.username,
-        limit: 50,
-      }),
-    }).then((res) => res.json().then((data) => data.results.results));
+    ).then((res) => res.json().then((data) => data.results.results));
+
+    this.logger.debug('tryUserReplays2[0]', tryUserReplays2[0].quarkid);
+    this.logger.debug('tryUserReplays2[0].date', tryUserReplays2[0].date);
 
     // let tryUserReplays3 = await Fightcade.GetUserReplays(userInfo.username, {
     //   limit: 100,
@@ -608,10 +636,12 @@ export class SessionService {
       userReplays = tryUserReplays2;
     }
 
-    this.logger.debug('userReplays', userReplays);
+    // this.logger.debug('userReplays', userReplays);
 
     const replay = userReplays[0];
     const replayId = replay.quarkid;
+
+    this.logger.debug('replayId', replayId);
 
     const isReplayIdAlreadySettled =
       await this.drizzleService.read.query.sessionLogs.findFirst({
