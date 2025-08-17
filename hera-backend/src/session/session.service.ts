@@ -542,16 +542,29 @@ export class SessionService {
 
     let currObject = objects[currentTimestamp % 2];
 
-    const userReplays = await Fightcade.GetUserReplays(
-      userInfo.username,
-      currObject,
-    );
+    // const userReplays = await Fightcade.GetUserReplays(
+    //   userInfo.username,
+    //   currObject,
+    // );
 
-    this.logger.debug('userReplays', userReplays);
+    let tryUserReplays1 = await Fightcade.GetUserReplays(userInfo.username, {
+      limit: 100,
+    });
 
-    if (userReplays.length === 0) {
+    let tryUserReplays2 = await Fightcade.GetUserReplays(userInfo.username, {
+      offset: 0,
+    });
+
+    if (tryUserReplays1.length === 0 || tryUserReplays2.length === 0) {
       throw new BadRequestException('No replays found for user');
     }
+
+    let userReplays =
+      tryUserReplays1[0].date > tryUserReplays2[0].date
+        ? tryUserReplays1
+        : tryUserReplays2;
+
+    this.logger.debug('userReplays', userReplays);
 
     const replay = userReplays[0];
     const replayId = replay.quarkid;
