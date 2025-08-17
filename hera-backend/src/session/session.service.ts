@@ -551,23 +551,63 @@ export class SessionService {
       limit: 100,
     });
 
+    this.logger.debug('tryUserReplays1', tryUserReplays1);
+
     let tryUserReplays2 = await Fightcade.GetUserReplays(userInfo.username, {
       offset: 0,
     });
 
-    if (tryUserReplays1.length === 0 || tryUserReplays2.length === 0) {
+    let tryUserReplays3 = await Fightcade.GetUserReplays(userInfo.username, {
+      limit: 100,
+      offset: 0,
+    });
+
+    let tryUserReplays4 = await Fightcade.GetUserReplays(userInfo.username, {
+      limit: 50,
+    });
+
+    if (
+      tryUserReplays1.length === 0 ||
+      tryUserReplays2.length === 0 ||
+      tryUserReplays3.length === 0 ||
+      tryUserReplays4.length === 0
+    ) {
       throw new BadRequestException('No replays found for user');
     }
 
-    let userReplays =
-      tryUserReplays1[0].date > tryUserReplays2[0].date
-        ? tryUserReplays1
-        : tryUserReplays2;
+    // Find the array with the replay that has the greatest date
+    const getMaxDate = (replays: any[]) =>
+      Math.max(...replays.map((r) => r.date));
+
+    const maxDate1 = getMaxDate(tryUserReplays1);
+    const maxDate2 = getMaxDate(tryUserReplays2);
+    const maxDate3 = getMaxDate(tryUserReplays3);
+    const maxDate4 = getMaxDate(tryUserReplays4);
+
+    let userReplays;
+    if (maxDate1 >= maxDate2 && maxDate1 >= maxDate3 && maxDate1 >= maxDate4) {
+      userReplays = tryUserReplays1;
+    } else if (maxDate2 >= maxDate3 && maxDate2 >= maxDate4) {
+      userReplays = tryUserReplays2;
+    } else if (maxDate3 >= maxDate4) {
+      userReplays = tryUserReplays3;
+    } else {
+      userReplays = tryUserReplays4;
+    }
 
     this.logger.debug('userReplays', userReplays);
 
     const replay = userReplays[0];
     const replayId = replay.quarkid;
+
+    const isReplayIdAlreadySettled =
+      await this.drizzleService.read.query.sessionLogs.findFirst({
+        where: eq(sessionLogs.replayId, replayId),
+      });
+
+    if (isReplayIdAlreadySettled) {
+      throw new BadRequestException('Replay has already been settled');
+    }
 
     // const userReplayStartDate = new Date(replay.date);
     // const userReplayEndDate = new Date(
