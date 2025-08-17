@@ -15,6 +15,7 @@ import { BottomMiddleIndicator } from './composables/bottom-middle-indicator';
 import { TopMiddleIndicator } from './composables/top-middle-indicator';
 import { useGamepads } from 'react-gamepads';
 import { SessionSettler } from './composables/session-settler';
+import { EventLogger } from './composables/event-logger';
 import WindowControls from './ui/window-controls';
 
 const Session: React.FC = () => {
@@ -119,11 +120,19 @@ const Session: React.FC = () => {
   console.log('Session component state:', { isLoadingSessionInfo, sessionInfo, sessionId });
 
   if (isLoadingSessionInfo) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen w-full p-8 bg-background text-foreground">
+        <div className="text-md">Loading...</div>
+      </div>
+    );
   }
 
   if (!sessionInfo) {
-    return <div>Session not found</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen w-full p-8 bg-background text-red">
+        <div className="text-md">Session not found</div>
+      </div>
+    );
   }
 
   return (
@@ -141,6 +150,9 @@ const Session: React.FC = () => {
           : undefined
       }}
     >
+      {/* Event Logger for showing betting events */}
+      <EventLogger />
+
       {/* Window Controls */}
       {/* <div className="absolute top-4 right-4 z-50">
         <WindowControls />
@@ -158,6 +170,10 @@ const Session: React.FC = () => {
       <BottomMiddleIndicator sessionInfo={sessionInfo} />
 
       {isAddingBet && <BetModal setIsAddingBet={setIsAddingBet} />}
+
+      <div className="absolute bottom-12 z-0">
+        <Button onClick={() => setIsAddingBet(!isAddingBet)}>{`Add New Bet [LB + RB]`}</Button>
+      </div>
 
       <SessionSettler />
     </div>
