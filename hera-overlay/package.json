@@ -1,7 +1,7 @@
 {
   "name": "hera-overlay",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "HERA - Betting overlay for Fightcade games",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",

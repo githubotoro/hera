@@ -9,6 +9,7 @@ function createWindow(): void {
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    title: 'HERA',
     width: 1920, // Full screen width
     height: 1080, // Full screen height
     show: false,
