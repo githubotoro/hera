@@ -53,7 +53,7 @@ export const SessionSettler = () => {
         userId: userInfo?.userId ?? ''
       });
     },
-    refetchInterval: 5 * 1000, // 5 seconds
+    refetchInterval: 10 * 1000, // 10 seconds
     refetchOnWindowFocus: true,
     refetchOnMount: true
     // placeholderData: keepPreviousData
@@ -65,7 +65,7 @@ export const SessionSettler = () => {
     // Set up interval to update timestamp every 5 seconds
     const interval = setInterval(() => {
       setTimestamp(Date.now());
-    }, 5 * 1000); // 5 seconds
+    }, 10 * 1000); // 10 seconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
